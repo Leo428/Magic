@@ -18,9 +18,13 @@ from wpilib import Joystick
 from magicbot import MagicRobot
 import robotMap as rMap
 from ctre import CANTalon
-from components.esophagus import Esophagus
+from hal.functions import isSimulation
+from components.solenoids import Solenoids
+
+isSimulation = MagicRobot.isSimulation()
+
 class MyRobot(MagicRobot):
-    eso = Esophagus
+    solenoids = Solenoids
     def createObjects(self):
         self.rightFrontBaseMotor = CANTalon(rMap.conf_rightFrontBaseTalon)
         self.rightRearBaseMotor = CANTalon(rMap.conf_rightRearBaseTalon)
@@ -55,17 +59,14 @@ class MyRobot(MagicRobot):
     def teleopPeriodic(self):
         self.robotDrive.tankDrive(self.rightJoy.getY(), self.leftJoy.getY())
         try:
-            if self.rightJoy.getTrigger():
-                self.eso.execute()
-        except: 
+            if self.leftJoy.getTrigger():
+                self.solenoids.setShift()
+        except:
             self.onException()
             
-        
-
     def test(self):
         '''Runs during test mode'''
         wpilib.LiveWindow.run()
         
-
 if __name__ == "__main__":
     wpilib.run(MyRobot)
