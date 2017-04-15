@@ -14,35 +14,58 @@
 '''
 
 import wpilib
+from wpilib import Joystick
 from magicbot import MagicRobot
+import robotMap as rMap
+from ctre import CANTalon
+from components.esophagus import Esophagus
 class MyRobot(MagicRobot):
-    
+    eso = Esophagus
     def createObjects(self):
-        super(MyRobot,self).createObjects()
-        pass
-    
+        self.rightFrontBaseMotor = CANTalon(rMap.conf_rightFrontBaseTalon)
+        self.rightRearBaseMotor = CANTalon(rMap.conf_rightRearBaseTalon)
+        self.leftFrontBaseMotor = CANTalon(rMap.conf_leftFrontBaseTalon)
+        self.leftRearBaseMotor = CANTalon(rMap.conf_leftRearBaseTalon)
+        
+        self.rightFrontBaseMotor.enableControl()
+        self.rightRearBaseMotor.enableControl()
+        self.rightRearBaseMotor.setControlMode(CANTalon.ControlMode.Follower)
+        self.rightRearBaseMotor.set(rMap.conf_rightFrontBaseTalon)
+        
+        self.leftFrontBaseMotor.setInverted(True)
+        self.leftFrontBaseMotor.enableControl()
+        self.leftRearBaseMotor.enableControl()
+        self.leftRearBaseMotor.setControlMode(CANTalon.ControlMode.Follower)
+        self.leftRearBaseMotor.set(rMap.conf_leftFrontBaseTalon)
+
+        self.leftJoy = Joystick(rMap.conf_left_joy)
+        self.rightJoy = Joystick(rMap.conf_right_joy)
+        self.xbox = Joystick(rMap.conf_xbox)
+        
+        self.robotDrive = wpilib.RobotDrive(self.rightFrontBaseMotor, self.leftFrontBaseMotor)
+        
     def autonomous(self):
         """Drive left and right motors for two seconds, then stop."""
-        self.drive.setSafetyEnabled(False)
-        self.drive.drive(-.05, 0.0)
-        wpilib.Timer.delay(2.0)
+        MagicRobot.autonomous(self)
+        
 
     def teleopInit(self):
-        super(MyRobot,self).createObjects()
-        pass
+        MagicRobot.teleopInit(self)
     
-    def operatorControl(self):
-        """Runs the motors with arcade steering."""
+    def teleopPeriodic(self):
+        self.robotDrive.tankDrive(self.rightJoy.getY(), self.leftJoy.getY())
+        try:
+            if self.rightJoy.getTrigger():
+                self.eso.execute()
+        except: 
+            self.onException()
+            
         
-        self.drive.setSafetyEnabled(True)
-        
-        while self.isOperatorControl() and self.isEnabled():
-            self.drive.arcadeDrive(self.stick)  # drive with arcade style (use right stick)
-            wpilib.Timer.delay(.005)    # wait for a motor update time
 
     def test(self):
         '''Runs during test mode'''
-        pass
+        wpilib.LiveWindow.run()
+        
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
