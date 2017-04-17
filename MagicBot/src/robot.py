@@ -47,7 +47,8 @@ class MyRobot(MagicRobot):
         self.rightJoy = Joystick(rMap.conf_right_joy)
         self.xbox = Joystick(rMap.conf_xbox)
         
-        self.robotDrive = wpilib.RobotDrive(self.leftFrontBaseMotor,self.rightFrontBaseMotor)
+        self.robotDrive = wpilib.RobotDrive(self.leftFrontBaseMotor,
+                                            self.rightFrontBaseMotor)
     def autonomous(self):
         """Drive left and right motors for two seconds, then stop."""
         MagicRobot.autonomous(self)
@@ -57,7 +58,13 @@ class MyRobot(MagicRobot):
         MagicRobot.teleopInit(self)
     
     def teleopPeriodic(self):
-        self.robotDrive.tankDrive(self.leftJoy.getY(),self.rightJoy.getY())
+        
+        if self.isSimulation():
+            # easier to control in simulation
+            self.robotDrive.arcadeDrive(self.leftJoy)
+        else:
+            self.robotDrive.tankDrive(self.leftJoy.getY(),self.rightJoy.getY())
+        
         try:
             if self.leftJoy.getRawButton(7):
                 self.solenoids.setShift()
