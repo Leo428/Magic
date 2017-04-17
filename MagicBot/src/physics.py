@@ -32,11 +32,16 @@ class PhysicsEngine(object):
         '''
         
         # Simulate the drivetrain
-        lr_motor = hal_data['CAN'][rMap.conf_leftRearBaseTalon]['value']
-        rr_motor = hal_data['CAN'][rMap.conf_rightRearBaseTalon]['value']
-        lf_motor = hal_data['CAN'][rMap.conf_leftFrontBaseTalon]['value']
-        rf_motor = hal_data['CAN'][rMap.conf_rightFrontBaseTalon]['value']
+        # -> CANTalon values are from -1023..1023, scale it to -1..1
+        lr_motor = hal_data['CAN'][rMap.conf_leftRearBaseTalon]['value'] / 1023
+        rr_motor = hal_data['CAN'][rMap.conf_rightRearBaseTalon]['value'] / 1023
+        lf_motor = hal_data['CAN'][rMap.conf_leftFrontBaseTalon]['value'] / 1023
+        rf_motor = hal_data['CAN'][rMap.conf_rightFrontBaseTalon]['value'] / 1023
         
+        # remember, if we use setInverted in the code, then we have to invert
+        # the motor outputs in simulation too!
+        lr_motor *= -1
+        lf_motor *= -1
         
-        speed, rotation = drivetrains.four_motor_drivetrain(lf_motor, rr_motor, lr_motor, rf_motor)
+        speed, rotation = drivetrains.four_motor_drivetrain(lr_motor, rr_motor, lf_motor, rf_motor)
         self.physics_controller.drive(speed, rotation, tm_diff)
