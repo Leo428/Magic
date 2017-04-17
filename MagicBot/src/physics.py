@@ -4,7 +4,7 @@ Created on Apr 14, 2017
 @author: huzhe
 '''
 from pyfrc.physics import drivetrains
-
+import robotMap as rMap
 
 class PhysicsEngine(object):
     '''
@@ -32,10 +32,11 @@ class PhysicsEngine(object):
         '''
         
         # Simulate the drivetrain
-        lr_motor = hal_data['pwm'][1]['value']
-        rr_motor = hal_data['pwm'][2]['value']
-        lf_motor = hal_data['pwm'][3]['value']
-        rf_motor = hal_data['pwm'][4]['value']
+        lr_motor = hal_data['CAN'][rMap.conf_leftRearBaseTalon]['value']
+        rr_motor = hal_data['CAN'][rMap.conf_rightRearBaseTalon]['value']
+        lf_motor = hal_data['CAN'][rMap.conf_leftFrontBaseTalon]['value']
+        rf_motor = hal_data['CAN'][rMap.conf_rightFrontBaseTalon]['value']
         
-        speed, rotation = drivetrains.four_motor_drivetrain(lr_motor, rr_motor, lf_motor, rf_motor)
+        
+        speed, rotation = drivetrains.four_motor_drivetrain(lf_motor, rr_motor, lr_motor, rf_motor)
         self.physics_controller.drive(speed, rotation, tm_diff)

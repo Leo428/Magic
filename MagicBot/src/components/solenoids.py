@@ -4,29 +4,25 @@ Created on Apr 14, 2017
 @author: huzhe
 '''
 
-from wpilib import DoubleSolenoid
-import robotMap as rMap
+import wpilib
 
 class Solenoids:
-    shiftBaseSolenoid = DoubleSolenoid(rMap.conf_shifterSolenoid1, rMap.conf_shifterSolenoid2)
-    liftSolenoid = DoubleSolenoid(rMap.conf_liftSolenoid1, rMap.conf_liftSolenoid2)
-    eso = DoubleSolenoid(rMap.conf_esophagusSolenoid1, rMap.conf_esophagusSolenoid2)
-    
-    shiftState = 0
+    shiftBaseSolenoid = wpilib.DoubleSolenoid
     
     def __init__(self):
-        self.shiftState = self.shiftBaseSolenoid.get()
-
+        self.shiftState = 0
     
     def setShift(self):
-        if self.shiftBaseSolenoid.get() == DoubleSolenoid.Value.kForward:
-            self.shiftState = DoubleSolenoid.Value.kReverse
-         
-        elif self.shiftBaseSolenoid.get() == DoubleSolenoid.Value.kReverse:
-            self.shiftState = DoubleSolenoid.Value.kForward
+        if self.shiftBaseSolenoid.get() == wpilib.DoubleSolenoid.Value.kForward:
+            self.shiftState = wpilib.DoubleSolenoid.Value.kReverse
+        
+        else:
+            self.shiftState = wpilib.DoubleSolenoid.Value.kForward
             
+        print(self.shiftState)
         return self.shiftState
     
     def execute(self):
-        self.shiftBaseSolenoid.set(self.setShift())
+        print('here ' + str(self.shiftState))
+        self.shiftBaseSolenoid.set(self.shiftState)
         self.shiftState = self.shiftBaseSolenoid.get()

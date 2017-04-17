@@ -18,7 +18,6 @@ from wpilib import Joystick
 from magicbot import MagicRobot
 import robotMap as rMap
 from ctre import CANTalon
-from hal.functions import isSimulation
 from components.solenoids import Solenoids
 
 isSimulation = MagicRobot.isSimulation()
@@ -26,6 +25,8 @@ isSimulation = MagicRobot.isSimulation()
 class MyRobot(MagicRobot):
     solenoids = Solenoids
     def createObjects(self):
+        
+        self.shiftBaseSolenoid = wpilib.DoubleSolenoid(rMap.conf_shifterSolenoid1, rMap.conf_shifterSolenoid2)
         self.rightFrontBaseMotor = CANTalon(rMap.conf_rightFrontBaseTalon)
         self.rightRearBaseMotor = CANTalon(rMap.conf_rightRearBaseTalon)
         self.leftFrontBaseMotor = CANTalon(rMap.conf_leftFrontBaseTalon)
@@ -36,9 +37,9 @@ class MyRobot(MagicRobot):
         self.rightRearBaseMotor.setControlMode(CANTalon.ControlMode.Follower)
         self.rightRearBaseMotor.set(rMap.conf_rightFrontBaseTalon)
         
-        self.leftFrontBaseMotor.setInverted(True)
         self.leftFrontBaseMotor.enableControl()
         self.leftRearBaseMotor.enableControl()
+        self.leftFrontBaseMotor.setInverted(True)
         self.leftRearBaseMotor.setControlMode(CANTalon.ControlMode.Follower)
         self.leftRearBaseMotor.set(rMap.conf_leftFrontBaseTalon)
 
@@ -46,8 +47,7 @@ class MyRobot(MagicRobot):
         self.rightJoy = Joystick(rMap.conf_right_joy)
         self.xbox = Joystick(rMap.conf_xbox)
         
-        self.robotDrive = wpilib.RobotDrive(self.rightFrontBaseMotor, self.leftFrontBaseMotor)
-        
+        self.robotDrive = wpilib.RobotDrive(self.leftFrontBaseMotor,self.rightFrontBaseMotor)
     def autonomous(self):
         """Drive left and right motors for two seconds, then stop."""
         MagicRobot.autonomous(self)
@@ -57,10 +57,12 @@ class MyRobot(MagicRobot):
         MagicRobot.teleopInit(self)
     
     def teleopPeriodic(self):
-        self.robotDrive.tankDrive(self.rightJoy.getY(), self.leftJoy.getY())
+        self.robotDrive.tankDrive(self.leftJoy.getY(),self.rightJoy.getY())
         try:
-            if self.leftJoy.getTrigger():
+            if self.leftJoy.getRawButton(7):
                 self.solenoids.setShift()
+                print("RED " + str(self.solenoids.setShift()))
+    
         except:
             self.onException()
             
